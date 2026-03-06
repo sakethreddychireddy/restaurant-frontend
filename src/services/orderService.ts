@@ -16,7 +16,7 @@ export const orderService = {
 
   // Capital S — matches UpdateOrderStatusDto(OrderStatus Status)
   updateStatus: async (id: string, status: OrderStatus): Promise<Order> =>
-    (await orderApi.patch(`/api/Orders/${id}/status`, { Status: status })).data,
+  (await orderApi.patch(`/api/Orders/${id}/status`, { status })).data,
 
   // cancel returns 204 NoContent
   cancel: async (id: string): Promise<void> =>
