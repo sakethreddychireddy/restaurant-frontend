@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-        NODE_VERSION = '20'
-        APP_DIR = '/home/saketh/restaurant-frontend'
-        BUILD_DIR = '/home/saketh/restaurant-frontend/dist'
-        NGINX_DIR = '/var/www/restaurant-frontend'
+        VITE_AUTH_API_URL  = credentials('AUTH_API_URL')
+        VITE_MENU_API_URL  = credentials('MENU_API_URL')
+        VITE_ORDER_API_URL = credentials('ORDER_API_URL')
     }
 
     stages {
@@ -44,7 +43,12 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔨 Building for production...'
-                sh 'npm run build'
+                sh '''
+                    echo "VITE_AUTH_API_URL=$VITE_AUTH_API_URL"   > .env
+                    echo "VITE_MENU_API_URL=$VITE_MENU_API_URL"   >> .env
+                    echo "VITE_ORDER_API_URL=$VITE_ORDER_API_URL" >> .env
+                    npm run build
+                '''
             }
         }
 
@@ -52,19 +56,11 @@ pipeline {
             steps {
                 echo '🚀 Deploying to Nginx...'
                 sh '''#!/bin/bash
-                    # Create nginx directory if not exists
                     sudo mkdir -p /var/www/restaurant-frontend
-
-                    # Remove old build
                     sudo rm -rf /var/www/restaurant-frontend/*
-
-                    # Copy new build
                     sudo cp -r dist/* /var/www/restaurant-frontend/
-
-                    # Set permissions
                     sudo chown -R www-data:www-data /var/www/restaurant-frontend
                     sudo chmod -R 755 /var/www/restaurant-frontend
-
                     echo "✅ Frontend deployed!"
                 '''
             }
