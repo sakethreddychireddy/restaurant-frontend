@@ -14,9 +14,11 @@ export const orderService = {
   getById: async (id: string): Promise<Order> =>
     (await orderApi.get(`/api/Orders/${id}`)).data,
 
+  // Capital S — matches UpdateOrderStatusDto(OrderStatus Status)
   updateStatus: async (id: string, status: OrderStatus): Promise<Order> =>
-    (await orderApi.patch(`/api/Orders/${id}/status`, { status })).data,
+    (await orderApi.patch(`/api/Orders/${id}/status`, { Status: status })).data,
 
-  cancel: async (id: string): Promise<Order> =>
+  // cancel returns 204 NoContent
+  cancel: async (id: string): Promise<void> =>
     (await orderApi.patch(`/api/Orders/${id}/cancel`)).data,
 };
