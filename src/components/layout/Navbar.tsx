@@ -1,8 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
-import { useCartStore } from "../../store/cartStore";
-import { useLogout } from "../../hooks/useAuth";
-import { cn } from "../../utils/cn";
+import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
+import { useLogout } from "@/hooks/useAuth";
+import { cn } from "@/utils/cn";
 
 export const Navbar = () => {
   const { user, isAuthenticated } = useAuthStore();
@@ -27,43 +27,63 @@ export const Navbar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl border-b border-stone-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link to="/menu" className="flex items-center gap-2.5 group">
+        {/* Logo */}
+        <Link
+          to={isAuthenticated && user?.role === "Admin" ? "/admin" : "/menu"}
+          className="flex items-center gap-2.5 group"
+        >
           <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-200 group-hover:scale-105 transition-transform">
             <span className="text-white text-lg">🍽️</span>
           </div>
           <span className="font-display font-black text-xl text-stone-800">
-            Developer's Restaurant
+            Savoria
           </span>
         </Link>
+
         <nav className="flex items-center gap-1">
           {isAuthenticated ? (
             <>
-              {navLink("/menu", "Menu")}
-              {navLink("/orders", "My Orders")}
-              {user?.role === "Admin" && navLink("/admin", "Admin")}
-              <Link
-                to="/cart"
-                className={cn(
-                  "relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all",
-                  pathname === "/cart"
-                    ? "bg-brand-50 text-brand-600"
-                    : "text-stone-600 hover:bg-stone-50",
-                )}
-              >
-                🛒 Cart
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-brand-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                    {totalItems}
-                  </span>
-                )}
-              </Link>
+              {/* Customer Nav */}
+              {user?.role === "Customer" && (
+                <>
+                  {navLink("/menu", "Menu")}
+                  {navLink("/orders", "My Orders")}
+                  <Link
+                    to="/cart"
+                    className={cn(
+                      "relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all",
+                      pathname === "/cart"
+                        ? "bg-brand-50 text-brand-600"
+                        : "text-stone-600 hover:bg-stone-50",
+                    )}
+                  >
+                    🛒 Cart
+                    {totalItems > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-brand-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                        {totalItems}
+                      </span>
+                    )}
+                  </Link>
+                </>
+              )}
+
+              {/* Admin Nav */}
+              {user?.role === "Admin" && <>{navLink("/admin", "Dashboard")}</>}
+
+              {/* User info + Logout */}
               <div className="ml-3 pl-3 border-l border-stone-200 flex items-center gap-2">
-                <span className="text-sm text-stone-500 hidden sm:block">
-                  {user?.name}
-                </span>
+                <div className="hidden sm:block text-right">
+                  <p className="text-sm font-semibold text-stone-700">
+                    {user?.name}
+                  </p>
+                  <p className="text-xs text-stone-400 capitalize">
+                    {user?.role}
+                  </p>
+                </div>
                 <button
                   onClick={logout}
                   className="p-2 rounded-xl text-stone-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                  title="Logout"
                 >
                   <svg
                     className="w-5 h-5"
@@ -84,6 +104,7 @@ export const Navbar = () => {
           ) : (
             <>
               {navLink("/login", "Login")}
+              {/* Only show Sign Up for customers — no admin registration */}
               <Link
                 to="/register"
                 className="ml-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-brand-200"
