@@ -23,8 +23,22 @@ const STATUS_EMOJI: Record<OrderStatus, string> = {
   Cancelled: "❌",
 };
 
+const STATUS_MESSAGE: Record<OrderStatus, string> = {
+  Pending: "Waiting for confirmation",
+  Confirmed: "Order confirmed",
+  Preparing: "Being prepared in kitchen",
+  Delivered: "Delivered successfully",
+  Cancelled: "Order was cancelled",
+};
+
 export const OrderCard = ({ order }: { order: Order }) => {
   const { mutate: cancel, isPending } = useCancelOrder();
+
+  const handleCancel = () => {
+    if (window.confirm("Are you sure you want to cancel this order?")) {
+      cancel(order.id);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-stone-100 overflow-hidden hover:shadow-md transition-shadow">
@@ -46,13 +60,16 @@ export const OrderCard = ({ order }: { order: Order }) => {
             label={`${STATUS_EMOJI[order.status]} ${order.status}`}
             variant={STATUS_VARIANT[order.status]}
           />
-          <p className="text-2xl font-black text-stone-800 mt-2">
+          <p className="text-xs text-stone-400 mt-1">
+            {STATUS_MESSAGE[order.status]}
+          </p>
+          <p className="text-2xl font-black text-stone-800 mt-1">
             {formatCurrency(order.totalPrice)}
           </p>
         </div>
       </div>
 
-      {/* Order Items — uses OrderItemResponseDto fields */}
+      {/* Items */}
       <div className="p-5 space-y-2">
         {order.items.map((item, i) => (
           <div key={i} className="flex justify-between text-sm">
@@ -65,20 +82,20 @@ export const OrderCard = ({ order }: { order: Order }) => {
                 {formatCurrency(item.subtotal)}
               </span>
               <span className="text-stone-400 text-xs ml-2">
-                @ {formatCurrency(item.unitPrice)} each
+                @ {formatCurrency(item.unitPrice)}
               </span>
             </div>
           </div>
         ))}
 
-        {/* Cancel button — only for Pending orders */}
+        {/* Cancel — only for Pending orders */}
         {order.status === "Pending" && (
-          <div className="pt-3 border-t border-stone-50">
+          <div className="pt-3 border-t border-stone-50 mt-3">
             <Button
               variant="danger"
               size="sm"
               loading={isPending}
-              onClick={() => cancel(order.id)}
+              onClick={handleCancel}
             >
               Cancel Order
             </Button>

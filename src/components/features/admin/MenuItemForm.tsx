@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { useCreateMenuItem } from "@/hooks/useMenu";
-import type { CreateMenuItemRequest } from "@/types";
+import { useCreateMenuItem, useUpdateMenuItem } from "@/hooks/useMenu";
+import type { CreateMenuItemRequest, MenuItem } from "@/types";
+
+interface Props {
+  onClose: () => void;
+  editItem?: MenuItem | null;
+}
 
 const INITIAL: CreateMenuItemRequest = {
   name: "",
@@ -14,9 +19,26 @@ const INITIAL: CreateMenuItemRequest = {
   badge: null,
 };
 
-export const MenuItemForm = ({ onClose }: { onClose: () => void }) => {
-  const [form, setForm] = useState<CreateMenuItemRequest>(INITIAL);
-  const { mutate: create, isPending } = useCreateMenuItem();
+export const MenuItemForm = ({ onClose, editItem }: Props) => {
+  const initialForm = useMemo(() => {
+    if (editItem) {
+      return {
+        name: editItem.name,
+        description: editItem.description,
+        price: editItem.price,
+        category: editItem.category,
+        emoji: editItem.emoji,
+        isVegetarian: editItem.isVegetarian,
+        badge: editItem.badge,
+      };
+    }
+    return INITIAL;
+  }, [editItem]);
+
+  const [form, setForm] = useState<CreateMenuItemRequest>(initialForm);
+  const { mutate: create, isPending: creating } = useCreateMenuItem();
+  const { mutate: update, isPending: updating } = useUpdateMenuItem();
+  const isPending = creating || updating;
 
   const set = (
     key: keyof CreateMenuItemRequest,
@@ -25,14 +47,16 @@ export const MenuItemForm = ({ onClose }: { onClose: () => void }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    create(
-      {
-        ...form,
-        price: Number(form.price),
-        badge: form.badge || null, // send null if empty string
-      },
-      { onSuccess: onClose },
-    );
+    const payload = {
+      ...form,
+      price: Number(form.price),
+      badge: form.badge || null,
+    };
+    if (editItem) {
+      update({ id: editItem.id, data: payload }, { onSuccess: onClose });
+    } else {
+      create(payload, { onSuccess: onClose });
+    }
   };
 
   return (
@@ -109,7 +133,7 @@ export const MenuItemForm = ({ onClose }: { onClose: () => void }) => {
           Cancel
         </Button>
         <Button type="submit" loading={isPending} className="flex-1">
-          Create Item
+          {editItem ? "Update Item" : "Create Item"}
         </Button>
       </div>
     </form>

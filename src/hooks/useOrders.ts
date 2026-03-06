@@ -10,7 +10,6 @@ export const ORDER_KEYS = {
   all: ["orders", "all"] as const,
 };
 
-// Customer — get my orders
 export const useMyOrders = () =>
   useQuery({
     queryKey: ORDER_KEYS.mine,
@@ -18,7 +17,6 @@ export const useMyOrders = () =>
     staleTime: 1000 * 30,
   });
 
-// Admin — get all orders
 export const useAllOrders = () =>
   useQuery({
     queryKey: ORDER_KEYS.all,
@@ -26,7 +24,6 @@ export const useAllOrders = () =>
     staleTime: 1000 * 30,
   });
 
-// Customer — place order
 export const usePlaceOrder = () => {
   const qc = useQueryClient();
   const { clearCart } = useCartStore();
@@ -43,7 +40,6 @@ export const usePlaceOrder = () => {
   });
 };
 
-// Admin — update order status
 export const useUpdateOrderStatus = () => {
   const qc = useQueryClient();
   return useMutation({
@@ -57,7 +53,6 @@ export const useUpdateOrderStatus = () => {
   });
 };
 
-// Customer — cancel order
 export const useCancelOrder = () => {
   const qc = useQueryClient();
   return useMutation({

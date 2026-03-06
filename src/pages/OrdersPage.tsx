@@ -1,17 +1,26 @@
 import { Link } from "react-router-dom";
-import { OrderCard } from "../components/features/orders/OrderCard";
-import { Skeleton } from "../components/ui/Skeleton";
-import { Button } from "../components/ui/Button";
-import { useMyOrders } from "../hooks/useOrders";
+import { OrderCard } from "@/components/features/orders/OrderCard";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { Button } from "@/components/ui/Button";
+import { useMyOrders } from "@/hooks/useOrders";
 
 export const OrdersPage = () => {
   const { data: orders = [], isLoading } = useMyOrders();
+
   return (
     <div className="min-h-screen bg-stone-50 py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        <h1 className="text-3xl font-black font-display text-stone-800 mb-8">
-          My Orders
-        </h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-black font-display text-stone-800">
+            My Orders
+          </h1>
+          <Link to="/menu">
+            <Button variant="secondary" size="sm">
+              + New Order
+            </Button>
+          </Link>
+        </div>
+
         {isLoading ? (
           <div className="space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
