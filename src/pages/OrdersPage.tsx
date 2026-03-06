@@ -30,7 +30,10 @@ export const OrdersPage = () => {
         ) : orders.length > 0 ? (
           <div className="space-y-4">
             {orders.map((order) => (
-              <OrderCard key={order.id} order={order} />
+              // wrap each card in a Link to order detail
+              <Link key={order.id} to={`/orders/${order.id}`}>
+                <OrderCard order={order} />
+              </Link>
             ))}
           </div>
         ) : (

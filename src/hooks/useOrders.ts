@@ -8,6 +8,7 @@ import type { CreateOrderRequest, OrderStatus } from "@/types";
 export const ORDER_KEYS = {
   mine: ["orders", "mine"] as const,
   all: ["orders", "all"] as const,
+  detail: (id: string) => ["orders", "detail", id] as const,
 };
 
 export const useMyOrders = () =>
@@ -21,6 +22,14 @@ export const useAllOrders = () =>
   useQuery({
     queryKey: ORDER_KEYS.all,
     queryFn: orderService.getAll,
+    staleTime: 1000 * 30,
+  });
+
+export const useOrder = (id: string) =>
+  useQuery({
+    queryKey: ORDER_KEYS.detail(id),
+    queryFn: () => orderService.getById(id),
+    enabled: !!id,
     staleTime: 1000 * 30,
   });
 
@@ -57,8 +66,9 @@ export const useCancelOrder = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => orderService.cancel(id),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       qc.invalidateQueries({ queryKey: ORDER_KEYS.mine });
+      qc.invalidateQueries({ queryKey: ORDER_KEYS.detail(id) });
       toast.success("Order cancelled");
     },
     onError: (err: string) => toast.error(err || "Cannot cancel this order"),
