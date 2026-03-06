@@ -11,17 +11,16 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: (data) => {
+      console.log("Login response:", data);
       const user: User = {
         id: data.userId,
         name: data.name,
         email: data.email,
-        role: data.role as "Customer" | "Admin",
+        role: data.role?.toLowerCase() === "admin" ? "Admin" : "Customer",
       };
       setAuth(user, data.token);
       toast.success(`Welcome back, ${data.name}! 👋`);
-
-      // ─── Redirect based on role ───────────────────────────────────────
-      if (data.role === "Admin") {
+      if (user.role === "Admin") {
         navigate("/admin");
       } else {
         navigate("/menu");
@@ -37,12 +36,12 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: (data: RegisterRequest) => authService.register(data),
     onSuccess: (data) => {
-      // Register always creates Customer — no admin registration from UI
+      console.log("Register response:", data);
       const user: User = {
         id: data.userId,
         name: data.name,
         email: data.email,
-        role: "Customer",
+        role: data.role?.toLowerCase() === "admin" ? "Admin" : "Customer",
       };
       setAuth(user, data.token);
       toast.success("Welcome to Savoria! 🎉");
