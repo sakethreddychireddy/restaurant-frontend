@@ -24,7 +24,7 @@ export const LoginPage = () => {
           <h1 className="font-display text-5xl font-700 text-white mb-4 leading-tight">
             Welcome back
             <br />
-            to Savoria
+            to Mithila
           </h1>
           <p className="text-cream-300 text-lg max-w-sm mx-auto leading-relaxed">
             Where every meal is crafted with love and served with warmth.
@@ -54,7 +54,7 @@ export const LoginPage = () => {
               <span className="text-lg">🍽️</span>
             </div>
             <span className="font-display font-700 text-xl text-charcoal">
-              Savoria
+              Mithila
             </span>
           </div>
 
@@ -96,7 +96,7 @@ export const LoginPage = () => {
               loading={isPending}
               className="w-full mt-2"
             >
-              Sign In to Savoria
+              Sign In to Mithila
             </Button>
           </form>
         </div>

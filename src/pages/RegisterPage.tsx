@@ -30,7 +30,7 @@ export const RegisterPage = () => {
           <h1 className="font-display text-5xl font-700 text-white mb-4 leading-tight">
             Join the
             <br />
-            Savoria family
+            Mithila family
           </h1>
           <p className="text-cream-300 text-lg max-w-sm mx-auto leading-relaxed">
             Discover handcrafted meals made with the finest ingredients,
@@ -66,7 +66,7 @@ export const RegisterPage = () => {
               <span className="text-lg">🍽️</span>
             </div>
             <span className="font-display font-700 text-xl text-charcoal">
-              Savoria
+              Mithila
             </span>
           </div>
 

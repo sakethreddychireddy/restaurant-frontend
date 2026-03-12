@@ -47,7 +47,7 @@ export const useRegister = () => {
         role: data.role?.toLowerCase() === "admin" ? "Admin" : "Customer",
       };
       setAuth(user, data.token);
-      toast.success("Welcome to Savoria! 🎉");
+      toast.success("Welcome to Mithila! 🎉");
       navigate("/menu");
     },
     onError: (err: string) => toast.error(err || "Registration failed"),

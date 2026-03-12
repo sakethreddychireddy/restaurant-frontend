@@ -36,7 +36,7 @@ export const Navbar = () => {
             <span className="text-lg">🍽️</span>
           </div>
           <span className="font-display font-700 text-xl text-charcoal tracking-wide">
-            Savoria
+            Mithila
           </span>
         </Link>
 
