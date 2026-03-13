@@ -5,19 +5,21 @@ pipeline {
         VITE_AUTH_API_URL  = credentials('AUTH_API_URL')
         VITE_MENU_API_URL  = credentials('MENU_API_URL')
         VITE_ORDER_API_URL = credentials('ORDER_API_URL')
+        VITE_APP_URL       = credentials('APP_URL')
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                echo '📦 Checking out code...'
+                echo 'Checking out latest code...'
                 checkout scm
             }
         }
 
         stage('Install Node') {
             steps {
-                echo '⚙️ Checking Node.js...'
+                echo 'Verifying Node.js version...'
                 sh '''
                     node --version
                     npm --version
@@ -28,52 +30,54 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                echo '📥 Installing dependencies...'
+                echo 'Installing dependencies...'
                 sh 'npm ci'
             }
         }
 
         stage('Type Check') {
             steps {
-                echo '🔍 Running TypeScript type check...'
+                echo 'Running TypeScript type check...'
                 sh 'npm run type-check'
             }
         }
 
         stage('Build') {
-        steps {
-            echo '🔨 Building for production...'
-            sh '''#!/bin/bash
-            echo "VITE_AUTH_API_URL=${VITE_AUTH_API_URL}"   > .env
-            echo "VITE_MENU_API_URL=${VITE_MENU_API_URL}"   >> .env
-            echo "VITE_ORDER_API_URL=${VITE_ORDER_API_URL}" >> .env
-            cat .env
-            npm run build
-            '''
+            steps {
+                echo 'Building for production...'
+                sh '''#!/bin/bash
+                    echo "VITE_AUTH_API_URL=${VITE_AUTH_API_URL}"   > .env
+                    echo "VITE_MENU_API_URL=${VITE_MENU_API_URL}"   >> .env
+                    echo "VITE_ORDER_API_URL=${VITE_ORDER_API_URL}" >> .env
+                    echo "VITE_APP_URL=${VITE_APP_URL}"             >> .env
+                    cat .env
+                    npm run build
+                '''
+            }
         }
-}
 
         stage('Deploy') {
             steps {
-                echo '🚀 Deploying to Nginx...'
+                echo 'Deploying to Nginx...'
                 sh '''#!/bin/bash
                     sudo mkdir -p /var/www/restaurant-frontend
                     sudo rm -rf /var/www/restaurant-frontend/*
                     sudo cp -r dist/* /var/www/restaurant-frontend/
                     sudo chown -R www-data:www-data /var/www/restaurant-frontend
                     sudo chmod -R 755 /var/www/restaurant-frontend
-                    echo "✅ Frontend deployed!"
+                    echo "Frontend deployed successfully"
                 '''
             }
         }
+
     }
 
     post {
         success {
-            echo '✅ Pipeline succeeded! Frontend is live.'
+            echo 'Deployment successful! Frontend is live.'
         }
         failure {
-            echo '❌ Pipeline failed! Check logs above.'
+            echo 'Deployment failed! Check logs above.'
         }
     }
 }

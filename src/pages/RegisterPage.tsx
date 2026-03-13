@@ -134,7 +134,7 @@ export const RegisterPage = () => {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <a
-              href={`${import.meta.env.VITE_AUTH_API_URL}/api/auth/google`}
+              href={`${import.meta.env.VITE_APP_URL}/api/auth/google`}
               className="flex items-center justify-center gap-2.5 px-4 py-3 bg-white border border-cream-200 rounded-2xl text-sm font-body font-semibold text-charcoal hover:bg-cream-50 transition-all shadow-warm-sm hover:shadow-warm-md"
             >
               <svg
@@ -162,7 +162,7 @@ export const RegisterPage = () => {
               Google
             </a>
             <a
-              href={`${import.meta.env.VITE_AUTH_API_URL}/api/auth/github`}
+              href={`${import.meta.env.VITE_APP_URL}/api/auth/github`}
               className="flex items-center justify-center gap-2.5 px-4 py-3 bg-white border border-cream-200 rounded-2xl text-sm font-body font-semibold text-charcoal hover:bg-cream-50 transition-all shadow-warm-sm hover:shadow-warm-md"
             >
               <svg
