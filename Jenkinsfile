@@ -49,7 +49,7 @@ pipeline {
                     echo "VITE_AUTH_API_URL=${VITE_AUTH_API_URL}"   > .env
                     echo "VITE_MENU_API_URL=${VITE_MENU_API_URL}"   >> .env
                     echo "VITE_ORDER_API_URL=${VITE_ORDER_API_URL}" >> .env
-                    echo "FRONTEND_BASE_URL=${FRONTEND_BASE_URL}" >> .env
+                    echo "VITE_FRONTEND_BASE_URL=${FRONTEND_BASE_URL}" >> .env
                     cat .env
                     npm run build
                 '''
