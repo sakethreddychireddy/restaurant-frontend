@@ -21,7 +21,6 @@ export const MenuItemModal = ({ itemId, onClose }: Props) => {
   const addItem = useCartStore((s) => s.addItem);
   const { data: item, isLoading } = useMenuItem(itemId ?? "");
 
-  // close on escape key
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -89,21 +88,39 @@ export const MenuItemModal = ({ itemId, onClose }: Props) => {
         ) : item ? (
           <>
             {/* Image / Emoji Section */}
-            <div className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-brand-50 h-52 flex items-center justify-center">
-              <span className="text-9xl select-none">{item.emoji}</span>
+            <div className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-brand-50 h-52 flex items-center justify-center overflow-hidden">
+              {item.imageUrl ? (
+                <img
+                  src={`${import.meta.env.VITE_MENU_API_URL}${item.imageUrl}`}
+                  alt={item.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    e.currentTarget.nextElementSibling?.classList.remove(
+                      "hidden",
+                    );
+                  }}
+                />
+              ) : null}
+              <span
+                className={`text-9xl select-none ${item.imageUrl ? "hidden" : ""}`}
+              >
+                {item.emoji}
+              </span>
+
               {item.isVegetarian && (
-                <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-green-500 text-white px-2.5 py-1 rounded-full">
+                <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-green-500 text-white px-2.5 py-1 rounded-full z-10">
                   <span className="text-xs font-bold">V</span>
                   <span className="text-xs font-semibold">Vegetarian</span>
                 </div>
               )}
               {hasValidBadge(item.badge) && (
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 right-4 z-10">
                   <Badge label={item.badge!} variant="warning" />
                 </div>
               )}
               {!item.isAvailable && (
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
                   <span className="bg-red-500 text-white px-4 py-2 rounded-full font-bold text-sm">
                     Currently Unavailable
                   </span>
@@ -113,7 +130,6 @@ export const MenuItemModal = ({ itemId, onClose }: Props) => {
 
             {/* Content */}
             <div className="p-6">
-              {/* Category & Name */}
               <div className="mb-4">
                 <span className="text-xs font-semibold text-brand-500 capitalize tracking-widest">
                   {item.category}
@@ -123,12 +139,10 @@ export const MenuItemModal = ({ itemId, onClose }: Props) => {
                 </h2>
               </div>
 
-              {/* Description */}
               <p className="text-stone-500 leading-relaxed mb-6">
                 {item.description}
               </p>
 
-              {/* Details Grid */}
               <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-stone-50 rounded-xl">
                 <div>
                   <p className="text-xs text-stone-400 font-semibold uppercase tracking-wide mb-1">
@@ -166,7 +180,6 @@ export const MenuItemModal = ({ itemId, onClose }: Props) => {
                 </div>
               </div>
 
-              {/* Add to Cart Button */}
               <div className="flex gap-3">
                 <Button
                   variant="secondary"

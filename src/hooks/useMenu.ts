@@ -32,18 +32,6 @@ export const useMenuItem = (id: string) =>
     staleTime: 1000 * 60 * 5,
   });
 
-export const useCreateMenuItem = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: CreateMenuItemRequest) => menuService.create(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: MENU_KEYS.all });
-      toast.success("Menu item created! 🎉");
-    },
-    onError: (err: string) => toast.error(err || "Failed to create item"),
-  });
-};
-
 export const useMenuByCategory = (category: string) =>
   useQuery({
     queryKey: MENU_KEYS.category(category),
@@ -51,6 +39,18 @@ export const useMenuByCategory = (category: string) =>
     enabled: !!category && category !== "all",
     staleTime: 1000 * 60 * 5,
   });
+
+export const useCreateMenuItem = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateMenuItemRequest) => menuService.create(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: MENU_KEYS.all });
+      toast.success("Menu item created!");
+    },
+    onError: (err: string) => toast.error(err || "Failed to create item"),
+  });
+};
 
 export const useUpdateMenuItem = () => {
   const qc = useQueryClient();
@@ -86,5 +86,37 @@ export const useDeleteMenuItem = () => {
       toast.success("Item deleted!");
     },
     onError: (err: string) => toast.error(err || "Failed to delete item"),
+  });
+};
+
+// ── Image hooks ────────────────────────────────────────────────
+
+export const useUploadMenuItemImage = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      menuService.uploadImage(id, file),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: MENU_KEYS.all });
+      qc.invalidateQueries({ queryKey: MENU_KEYS.available });
+      qc.invalidateQueries({ queryKey: MENU_KEYS.detail(id) });
+      toast.success("Image uploaded!");
+    },
+    onError: (err: string) => toast.error(err || "Failed to upload image"),
+  });
+};
+
+export const useUpdateMenuItemImageUrl = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, imageUrl }: { id: string; imageUrl: string }) =>
+      menuService.updateImageUrl(id, { imageUrl }),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: MENU_KEYS.all });
+      qc.invalidateQueries({ queryKey: MENU_KEYS.available });
+      qc.invalidateQueries({ queryKey: MENU_KEYS.detail(id) });
+      toast.success("Image URL updated!");
+    },
+    onError: (err: string) => toast.error(err || "Failed to update image URL"),
   });
 };

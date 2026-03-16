@@ -28,12 +28,14 @@ export interface MenuItem {
   price: number;
   category: string;
   emoji: string;
+  imageUrl: string | null; // ← new
   isVegetarian: boolean;
   badge: string | null;
   isAvailable: boolean;
   createdAt: string;
   updatedAt: string;
 }
+
 export interface CreateMenuItemRequest {
   name: string;
   description: string;
@@ -43,6 +45,7 @@ export interface CreateMenuItemRequest {
   isVegetarian: boolean;
   badge?: string | null;
 }
+
 export interface UpdateMenuItemRequest {
   name?: string;
   description?: string;
@@ -54,25 +57,28 @@ export interface UpdateMenuItemRequest {
   isAvailable?: boolean;
 }
 
+// ── New image DTOs ─────────────────────────────────────────────
+export interface UpdateImageUrlRequest {
+  imageUrl: string;
+}
+
 export type OrderStatus =
   | "Pending"
   | "Confirmed"
   | "Preparing"
   | "Delivered"
   | "Cancelled";
-// matches OrderItemDto — used when creating order
+
 export interface OrderItemRequest {
-  menuItemId: string; // Guid as string
+  menuItemId: string;
   quantity: number;
 }
 
-// matches CreateOrderDto
 export interface CreateOrderRequest {
   deliveryAddress: string;
   items: OrderItemRequest[];
 }
 
-// matches OrderItemResponseDto
 export interface OrderItemResponse {
   menuItemId: string;
   menuItemName: string;
@@ -81,7 +87,6 @@ export interface OrderItemResponse {
   subtotal: number;
 }
 
-// matches OrderResponseDto
 export interface Order {
   id: string;
   userId: string;
@@ -93,10 +98,10 @@ export interface Order {
   updatedAt: string;
 }
 
-// matches UpdateOrderStatusDto
 export interface UpdateOrderStatusRequest {
   status: OrderStatus;
 }
+
 export interface CartItem extends MenuItem {
   quantity: number;
 }

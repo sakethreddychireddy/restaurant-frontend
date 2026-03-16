@@ -32,28 +32,48 @@ export const MenuCard = ({ item, onViewDetail }: Props) => {
       onClick={() => onViewDetail(item.id)}
       className="bg-white rounded-3xl border border-cream-200 overflow-hidden card-hover cursor-pointer group flex flex-col shadow-warm-sm"
     >
-      {/* Emoji section */}
+      {/* Image / Emoji section */}
       <div className="relative bg-gradient-to-br from-cream-100 to-cream-200 h-44 flex items-center justify-center overflow-hidden">
-        <span className="text-7xl group-hover:scale-110 transition-transform duration-300 select-none filter drop-shadow-sm">
+        {item.imageUrl ? (
+          <img
+            src={`${import.meta.env.VITE_MENU_API_URL}${item.imageUrl}`}
+            alt={item.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              // fallback to emoji if image fails to load
+              e.currentTarget.style.display = "none";
+              e.currentTarget.nextElementSibling?.classList.remove("hidden");
+            }}
+          />
+        ) : null}
+        {/* Emoji fallback — shown when no image or image fails */}
+        <span
+          className={`text-7xl group-hover:scale-110 transition-transform duration-300 select-none filter drop-shadow-sm ${
+            item.imageUrl ? "hidden" : ""
+          }`}
+        >
           {item.emoji}
         </span>
+
         {/* Veg indicator */}
         {item.isVegetarian && (
           <div
-            className="absolute top-3 left-3 w-6 h-6 bg-olive-500 rounded-full flex items-center justify-center shadow-sm"
+            className="absolute top-3 left-3 w-6 h-6 bg-olive-500 rounded-full flex items-center justify-center shadow-sm z-10"
             title="Vegetarian"
           >
             <span className="text-white text-xs font-body font-700">V</span>
           </div>
         )}
+
         {/* Badge */}
         {hasValidBadge(item.badge) && (
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-3 right-3 z-10">
             <Badge label={item.badge!} variant="warning" />
           </div>
         )}
+
         {/* View detail hint */}
-        <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/5 transition-colors duration-300 flex items-center justify-center">
+        <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/5 transition-colors duration-300 flex items-center justify-center z-10">
           <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur text-charcoal text-xs font-body font-700 px-3 py-1.5 rounded-full shadow-warm-sm">
             View Details
           </span>

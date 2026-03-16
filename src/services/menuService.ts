@@ -3,6 +3,7 @@ import type {
   MenuItem,
   CreateMenuItemRequest,
   UpdateMenuItemRequest,
+  UpdateImageUrlRequest,
 } from "@/types";
 
 export const menuService = {
@@ -29,4 +30,21 @@ export const menuService = {
 
   delete: async (id: string): Promise<void> =>
     (await menuApi.delete(`/api/MenuItems/${id}`)).data,
+
+  // ── Image ────────────────────────────────────────────────────
+  uploadImage: async (id: string, file: File): Promise<MenuItem> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return (
+      await menuApi.post(`/api/MenuItems/${id}/image`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+    ).data;
+  },
+
+  updateImageUrl: async (
+    id: string,
+    data: UpdateImageUrlRequest,
+  ): Promise<MenuItem> =>
+    (await menuApi.patch(`/api/MenuItems/${id}/image-url`, data)).data,
 };
