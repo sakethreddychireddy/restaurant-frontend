@@ -24,7 +24,7 @@ export const MenuCard = ({ item, onViewDetail }: Props) => {
       return;
     }
     addItem(item);
-    toast.success(`${item.emoji} Added to cart!`, { duration: 1500 });
+    toast.success(`${item.imageUrl} Added to cart!`, { duration: 1500 });
   };
 
   return (
@@ -52,7 +52,7 @@ export const MenuCard = ({ item, onViewDetail }: Props) => {
             item.imageUrl ? "hidden" : ""
           }`}
         >
-          {item.emoji}
+          {item.imageUrl}
         </span>
 
         {/* Veg indicator */}

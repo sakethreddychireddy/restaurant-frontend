@@ -40,7 +40,7 @@ export const MenuItemModal = ({ itemId, onClose }: Props) => {
     }
     if (item) {
       addItem(item);
-      toast.success(`${item.emoji} Added to cart!`, { duration: 1500 });
+      toast.success(`${item.imageUrl} Added to cart!`, { duration: 1500 });
       onClose();
     }
   };
@@ -105,7 +105,7 @@ export const MenuItemModal = ({ itemId, onClose }: Props) => {
               <span
                 className={`text-9xl select-none ${item.imageUrl ? "hidden" : ""}`}
               >
-                {item.emoji}
+                {item.imageUrl}
               </span>
 
               {item.isVegetarian && (

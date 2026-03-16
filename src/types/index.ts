@@ -27,8 +27,7 @@ export interface MenuItem {
   description: string;
   price: number;
   category: string;
-  emoji: string;
-  imageUrl: string | null; // ← new
+  imageUrl: string;
   isVegetarian: boolean;
   badge: string | null;
   isAvailable: boolean;
@@ -41,7 +40,7 @@ export interface CreateMenuItemRequest {
   description: string;
   price: number;
   category: string;
-  emoji: string;
+  imageUrl: string;
   isVegetarian: boolean;
   badge?: string | null;
 }
@@ -51,7 +50,7 @@ export interface UpdateMenuItemRequest {
   description?: string;
   price?: number;
   category?: string;
-  emoji?: string;
+  imageUrl?: string;
   isVegetarian?: boolean;
   badge?: string | null;
   isAvailable?: boolean;

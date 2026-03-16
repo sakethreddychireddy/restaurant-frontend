@@ -19,7 +19,7 @@ const INITIAL: CreateMenuItemRequest = {
   description: "",
   price: 0,
   category: "",
-  emoji: "🍽️",
+  imageUrl: "",
   isVegetarian: false,
   badge: null,
 };
@@ -34,7 +34,7 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
         description: editItem.description,
         price: editItem.price,
         category: editItem.category,
-        emoji: editItem.emoji,
+        imageUrl: editItem.imageUrl,
         isVegetarian: editItem.isVegetarian,
         badge: editItem.badge,
       };
@@ -136,11 +136,11 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
           placeholder="Margherita Pizza"
         />
         <Input
-          label="Emoji"
+          label="Image"
           required
-          value={form.emoji}
-          onChange={(e) => set("emoji", e.target.value)}
-          placeholder="🍕"
+          value={form.imageUrl}
+          onChange={(e) => set("imageUrl", e.target.value)}
+          placeholder="Image"
         />
       </div>
 
