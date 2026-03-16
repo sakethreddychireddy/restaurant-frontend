@@ -40,12 +40,30 @@ export const useMenuByCategory = (category: string) =>
     staleTime: 1000 * 60 * 5,
   });
 
+// export const useCreateMenuItem = () => {
+//   const qc = useQueryClient();
+//   return useMutation({
+//     mutationFn: (data: CreateMenuItemRequest) => menuService.create(data),
+//     onSuccess: () => {
+//       qc.invalidateQueries({ queryKey: MENU_KEYS.all });
+//       toast.success("Menu item created!");
+//     },
+//     onError: (err: string) => toast.error(err || "Failed to create item"),
+//   });
+// };
 export const useCreateMenuItem = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateMenuItemRequest) => menuService.create(data),
+    mutationFn: ({
+      data,
+      imageFile,
+    }: {
+      data: CreateMenuItemRequest;
+      imageFile?: File;
+    }) => menuService.create(data, imageFile),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: MENU_KEYS.all });
+      qc.invalidateQueries({ queryKey: MENU_KEYS.available });
       toast.success("Menu item created!");
     },
     onError: (err: string) => toast.error(err || "Failed to create item"),

@@ -24,7 +24,9 @@ const INITIAL: CreateMenuItemRequest = {
   badge: null,
 };
 
-type ImageMode = "none" | "upload" | "url";
+type ImageMode = "upload" | "url";
+
+const MENU_API = import.meta.env.VITE_MENU_API_URL;
 
 export const MenuItemForm = ({ onClose, editItem }: Props) => {
   const initialForm = useMemo(() => {
@@ -34,7 +36,7 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
         description: editItem.description,
         price: editItem.price,
         category: editItem.category,
-        imageUrl: editItem.imageUrl,
+        imageUrl: editItem.imageUrl ?? "",
         isVegetarian: editItem.isVegetarian,
         badge: editItem.badge,
       };
@@ -43,23 +45,29 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
   }, [editItem]);
 
   const [form, setForm] = useState<CreateMenuItemRequest>(initialForm);
-  const [imageMode, setImageMode] = useState<ImageMode>(
-    editItem?.imageUrl ? "url" : "none",
-  );
-  const [imageUrl, setImageUrl] = useState(editItem?.imageUrl ?? "");
+  const [imageMode, setImageMode] = useState<ImageMode>("upload");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState(
+    editItem?.imageUrl?.startsWith("http") ? editItem.imageUrl : "",
+  );
   const [imagePreview, setImagePreview] = useState<string | null>(
     editItem?.imageUrl
-      ? `${import.meta.env.VITE_MENU_API_URL}${editItem.imageUrl}`
+      ? editItem.imageUrl.startsWith("http")
+        ? editItem.imageUrl
+        : `${MENU_API}${editItem.imageUrl}`
       : null,
   );
+  const [imageError, setImageError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { mutate: create, isPending: creating } = useCreateMenuItem();
   const { mutate: update, isPending: updating } = useUpdateMenuItem();
-  const { mutate: uploadImage } = useUploadMenuItemImage();
-  const { mutate: updateImageUrl } = useUpdateMenuItemImageUrl();
-  const isPending = creating || updating;
+  const { mutate: uploadImage, isPending: uploading } =
+    useUploadMenuItemImage();
+  const { mutate: updateImageUrl, isPending: updatingUrl } =
+    useUpdateMenuItemImageUrl();
+
+  const isPending = creating || updating || uploading || updatingUrl;
 
   const set = (
     key: keyof CreateMenuItemRequest,
@@ -71,14 +79,30 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
     if (!file) return;
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
+    setImageError("");
+  };
+
+  const validateImage = (): boolean => {
+    if (imageMode === "upload" && !imageFile && !editItem?.imageUrl) {
+      setImageError("Please upload an image");
+      return false;
+    }
+    if (imageMode === "url" && !imageUrl.trim() && !editItem?.imageUrl) {
+      setImageError("Please provide an image URL");
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateImage()) return;
+
     const payload = {
       ...form,
       price: Number(form.price),
       badge: form.badge || null,
+      imageUrl: imageMode === "url" ? imageUrl : form.imageUrl,
     };
 
     if (editItem) {
@@ -86,7 +110,6 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
         { id: editItem.id, data: payload },
         {
           onSuccess: (updated) => {
-            // handle image after update
             if (imageMode === "upload" && imageFile) {
               uploadImage(
                 { id: updated.id, file: imageFile },
@@ -104,24 +127,15 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
         },
       );
     } else {
-      create(payload, {
-        onSuccess: (created) => {
-          // handle image after create
-          if (imageMode === "upload" && imageFile) {
-            uploadImage(
-              { id: created.id, file: imageFile },
-              { onSuccess: onClose },
-            );
-          } else if (imageMode === "url" && imageUrl) {
-            updateImageUrl(
-              { id: created.id, imageUrl },
-              { onSuccess: onClose },
-            );
-          } else {
-            onClose();
-          }
+      // create — pass imageFile directly
+      create(
+        {
+          data: payload,
+          imageFile:
+            imageMode === "upload" ? (imageFile ?? undefined) : undefined,
         },
-      });
+        { onSuccess: onClose },
+      );
     }
   };
 
@@ -136,11 +150,11 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
           placeholder="Margherita Pizza"
         />
         <Input
-          label="Image"
+          label="Category"
           required
-          value={form.imageUrl}
-          onChange={(e) => set("imageUrl", e.target.value)}
-          placeholder="Image"
+          value={form.category}
+          onChange={(e) => set("category", e.target.value)}
+          placeholder="pizza"
         />
       </div>
 
@@ -164,71 +178,67 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
           placeholder="12.99"
         />
         <Input
-          label="Category"
-          required
-          value={form.category}
-          onChange={(e) => set("category", e.target.value)}
-          placeholder="pizza"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <Input
           label="Badge (optional)"
           value={form.badge || ""}
           onChange={(e) => set("badge", e.target.value || null)}
           placeholder="New, Popular..."
         />
-        <div className="flex items-center gap-3 pt-7">
-          <input
-            type="checkbox"
-            id="veg"
-            checked={form.isVegetarian}
-            onChange={(e) => set("isVegetarian", e.target.checked)}
-            className="w-4 h-4 accent-brand-500"
-          />
-          <label htmlFor="veg" className="text-sm font-semibold text-stone-700">
-            Vegetarian
-          </label>
-        </div>
       </div>
 
-      {/* ── Image Section ───────────────────────────────────── */}
-      <div className="space-y-3">
-        <label className="text-sm font-semibold text-stone-700">
-          Image (optional)
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          id="veg"
+          checked={form.isVegetarian}
+          onChange={(e) => set("isVegetarian", e.target.checked)}
+          className="w-4 h-4 accent-brand-500"
+        />
+        <label htmlFor="veg" className="text-sm font-semibold text-stone-700">
+          Vegetarian
         </label>
+      </div>
 
-        {/* Mode selector */}
-        <div className="flex gap-2">
-          {(["none", "upload", "url"] as ImageMode[]).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => {
-                setImageMode(mode);
-                setImageFile(null);
-                setImagePreview(null);
-                setImageUrl("");
-              }}
-              className={`px-3 py-1.5 rounded-lg text-sm font-body font-semibold transition-all ${
-                imageMode === mode
-                  ? "bg-terra-500 text-white"
-                  : "bg-cream-100 text-warm-500 hover:bg-cream-200"
-              }`}
-            >
-              {mode === "none" && "No Image"}
-              {mode === "upload" && "Upload File"}
-              {mode === "url" && "Paste URL"}
-            </button>
-          ))}
+      {/* ── Image Section (Required) ─────────────────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-semibold text-stone-700">
+            Image <span className="text-red-500">*</span>
+          </label>
+          <div className="flex gap-2">
+            {(["upload", "url"] as ImageMode[]).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => {
+                  setImageMode(mode);
+                  setImageError("");
+                  if (mode === "upload") {
+                    setImageUrl("");
+                  } else {
+                    setImageFile(null);
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                  imageMode === mode
+                    ? "bg-terra-500 text-white"
+                    : "bg-cream-100 text-warm-500 hover:bg-cream-200"
+                }`}
+              >
+                {mode === "upload" ? "Upload File" : "Paste URL"}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Upload file */}
+        {/* Upload */}
         {imageMode === "upload" && (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-cream-300 rounded-xl p-4 text-center cursor-pointer hover:border-terra-400 transition-colors"
+            className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
+              imageError
+                ? "border-red-300 bg-red-50"
+                : "border-cream-300 hover:border-terra-400"
+            }`}
           >
             {imagePreview ? (
               <img
@@ -237,7 +247,7 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
                 className="h-32 mx-auto object-cover rounded-lg"
               />
             ) : (
-              <div className="text-warm-400 font-body text-sm">
+              <div className="text-warm-400 text-sm">
                 <p className="text-2xl mb-1">📁</p>
                 <p>Click to upload image</p>
                 <p className="text-xs mt-1">JPEG, PNG, WebP — max 5MB</p>
@@ -253,7 +263,7 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
           </div>
         )}
 
-        {/* Paste URL */}
+        {/* URL */}
         {imageMode === "url" && (
           <div className="space-y-2">
             <Input
@@ -262,6 +272,7 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
               onChange={(e) => {
                 setImageUrl(e.target.value);
                 setImagePreview(e.target.value || null);
+                setImageError("");
               }}
               placeholder="https://example.com/image.jpg"
             />
@@ -269,11 +280,16 @@ export const MenuItemForm = ({ onClose, editItem }: Props) => {
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="h-32 rounded-lg object-cover"
+                className="h-32 rounded-lg object-cover w-full"
                 onError={() => setImagePreview(null)}
               />
             )}
           </div>
+        )}
+
+        {/* Error */}
+        {imageError && (
+          <p className="text-red-500 text-xs font-body">{imageError}</p>
         )}
       </div>
 
