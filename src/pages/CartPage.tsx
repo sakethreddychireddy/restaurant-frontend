@@ -6,13 +6,43 @@ import { usePlaceOrder } from "@/hooks/useOrders";
 import { formatCurrency } from "@/utils/format";
 import type { CartItem } from "@/types";
 
+const MENU_API = import.meta.env.VITE_MENU_API_URL;
+
+const resolveImageUrl = (imageUrl: string): string => {
+  if (!imageUrl) return "";
+  if (imageUrl.startsWith("http")) return imageUrl;
+  return `${MENU_API}${imageUrl}`;
+};
+
 const CartItemRow = ({ item }: { item: CartItem }) => {
   const { updateQuantity, removeItem } = useCartStore();
+
   return (
     <div className="flex items-center gap-4 bg-white rounded-2xl p-4 border border-cream-200 shadow-warm-sm hover:shadow-warm-md transition-shadow">
-      <div className="w-14 h-14 bg-cream-100 rounded-xl flex items-center justify-center flex-shrink-0">
-        <span className="text-3xl">{item.imageUrl}</span>
+      {/* Image */}
+      <div className="w-14 h-14 bg-cream-100 rounded-xl overflow-hidden flex-shrink-0">
+        {item.imageUrl ? (
+          <img
+            src={resolveImageUrl(item.imageUrl)}
+            alt={item.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              e.currentTarget.parentElement
+                ?.querySelector(".fallback")
+                ?.classList.remove("hidden");
+            }}
+          />
+        ) : null}
+        <div
+          className={`fallback w-full h-full flex items-center justify-center ${
+            item.imageUrl ? "hidden" : ""
+          }`}
+        >
+          <span className="text-2xl">🍽️</span>
+        </div>
       </div>
+
       <div className="flex-1 min-w-0">
         <h4 className="font-display font-700 text-charcoal text-lg leading-tight truncate">
           {item.name}
@@ -21,6 +51,7 @@ const CartItemRow = ({ item }: { item: CartItem }) => {
           {formatCurrency(item.price)}
         </p>
       </div>
+
       <div className="flex items-center gap-2">
         <button
           onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -38,6 +69,7 @@ const CartItemRow = ({ item }: { item: CartItem }) => {
           +
         </button>
       </div>
+
       <div className="text-right">
         <p className="font-display font-700 text-charcoal">
           {formatCurrency(item.price * item.quantity)}

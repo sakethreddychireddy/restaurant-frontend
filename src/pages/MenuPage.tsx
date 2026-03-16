@@ -120,8 +120,11 @@ export const MenuPage = () => {
             ))}
           </div>
         ) : (
+          // Replace the empty state section
           <div className="text-center py-24 animate-fade-up">
-            <p className="text-7xl mb-6">🍽️</p>
+            <div className="w-24 h-24 bg-cream-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-5xl">🍽️</span>
+            </div>
             <h3 className="font-display text-2xl font-700 text-charcoal mb-2">
               No dishes found
             </h3>
