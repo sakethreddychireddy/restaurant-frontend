@@ -11,7 +11,7 @@ const CartItemRow = ({ item }: { item: CartItem }) => {
   return (
     <div className="flex items-center gap-4 bg-white rounded-2xl p-4 border border-cream-200 shadow-warm-sm hover:shadow-warm-md transition-shadow">
       <div className="w-14 h-14 bg-cream-100 rounded-xl flex items-center justify-center flex-shrink-0">
-        <span className="text-3xl">{item.emoji}</span>
+        <span className="text-3xl">{item.imageUrl}</span>
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="font-display font-700 text-charcoal text-lg leading-tight truncate">

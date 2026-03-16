@@ -7,7 +7,7 @@ export const CartItemRow = ({ item }: { item: CartItemType }) => {
   return (
     <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-stone-100 hover:border-brand-200 transition-colors">
       <div className="w-14 h-14 bg-gradient-to-br from-amber-50 to-brand-50 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">
-        {item.emoji}
+        {item.imageUrl}
       </div>
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-stone-800 truncate">{item.name}</h3>

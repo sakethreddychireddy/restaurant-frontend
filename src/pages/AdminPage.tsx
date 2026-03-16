@@ -181,7 +181,7 @@ export const AdminPage = () => {
                   }}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <span className="text-4xl">{item.emoji}</span>
+                    <span className="text-4xl">{item.imageUrl}</span>
                     <div className="flex items-center gap-2 flex-wrap justify-end">
                       {item.badge && item.badge !== "none" && (
                         <Badge label={item.badge} variant="warning" />
