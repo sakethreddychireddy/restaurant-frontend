@@ -3,6 +3,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { useLogout } from "@/hooks/useAuth";
 import { cn } from "@/utils/cn";
+import logo from "../assets/download.svg";
 
 export const Navbar = () => {
   const { user, isAuthenticated } = useAuthStore();
@@ -33,7 +34,12 @@ export const Navbar = () => {
           className="flex items-center gap-2.5 group"
         >
           <div className="w-9 h-9 bg-gradient-to-br from-terra-400 to-terra-600 rounded-xl flex items-center justify-center shadow-terra group-hover:scale-105 transition-transform duration-200">
-            <span className="text-lg">🍽️</span>
+            {/* <span className="text-lg">🍽️</span> */}
+            <img
+              src={logo}
+              alt="Mithila Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <span className="font-display font-700 text-xl text-charcoal tracking-wide">
             Mithila
