@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useLogin } from "@/hooks/useAuth";
+import logo from "../assets/download.svg";
 
 export const LoginPage = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -19,7 +20,12 @@ export const LoginPage = () => {
       <div className="hidden lg:flex hero-warm grain relative overflow-hidden flex-col items-center justify-center p-12">
         <div className="relative z-10 text-center animate-fade-up">
           <div className="w-20 h-20 bg-white/10 backdrop-blur rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/20">
-            <span className="text-4xl">🍽️</span>
+            {/* <span className="text-4xl">🍽️</span> */}
+            <img
+              src={logo}
+              alt="Mithila Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <h1 className="font-display text-5xl font-700 text-white mb-4 leading-tight">
             Welcome back
@@ -51,7 +57,12 @@ export const LoginPage = () => {
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
             <div className="w-9 h-9 bg-gradient-to-br from-terra-400 to-terra-600 rounded-xl flex items-center justify-center">
-              <span className="text-lg">🍽️</span>
+              {/* <span className="text-lg">🍽️</span> */}
+              <img
+                src={logo}
+                alt="Mithila Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <span className="font-display font-700 text-xl text-charcoal">
               Mithila
