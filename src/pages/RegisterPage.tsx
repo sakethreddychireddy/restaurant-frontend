@@ -63,7 +63,12 @@ export const RegisterPage = () => {
         <div className="w-full max-w-md animate-fade-up">
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
             <div className="w-9 h-9 bg-gradient-to-br from-terra-400 to-terra-600 rounded-xl flex items-center justify-center">
-              <span className="text-lg">🍽️</span>
+              {/* <span className="text-lg">🍽️</span> */}
+              <img
+                src="/assets/download.svg"
+                alt="Mithila Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <span className="font-display font-700 text-xl text-charcoal">
               Mithila
