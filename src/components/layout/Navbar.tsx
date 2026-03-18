@@ -3,7 +3,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { useLogout } from "@/hooks/useAuth";
 import { cn } from "@/utils/cn";
-import logo from "../assets/download.svg";
+import logo from "@/assets/download.svg";
 
 export const Navbar = () => {
   const { user, isAuthenticated } = useAuthStore();
