@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { useLogout } from "@/hooks/useAuth";
-import { useThemeStore } from "@/store/themeStore";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/utils/cn";
 import logo from "@/assets/download.svg";
@@ -19,7 +18,7 @@ export const Navbar = () => {
   const totalItems = useCartStore((s) => s.totalItems());
   const logout = useLogout();
   const { pathname } = useLocation();
-  const { theme } = useThemeStore();
+  const { theme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

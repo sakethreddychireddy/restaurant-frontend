@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useAuthStore } from "@/store/authStore";
-import { useThemeStore, type Theme } from "@/store/themeStore";
+import { type Theme } from "@/store/themeStore";
 import { useTheme } from "@/hooks/useTheme";
 import {
   useProfile,
@@ -171,8 +171,8 @@ const ProfileFormSkeleton = () => (
 // ── Main Profile Page ──────────────────────────────────────────
 export const ProfilePage = () => {
   const { user } = useAuthStore();
-  const { theme, setTheme } = useThemeStore();
-  const isAdmin = user?.role === "Admin";
+  const { theme, setTheme } = useTheme();
+  const isAdmin = user?.role.toLocaleLowerCase() === "admin";
 
   useTheme();
 

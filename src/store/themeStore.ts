@@ -4,15 +4,22 @@ import { persist } from "zustand/middleware";
 export type Theme = "warm" | "dark" | "fresh";
 
 interface ThemeStore {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
+  themes: Record<string, Theme>; // userId → theme
+  getTheme: (userId: string) => Theme;
+  setTheme: (userId: string, theme: Theme) => void;
 }
 
 export const useThemeStore = create<ThemeStore>()(
   persist(
-    (set) => ({
-      theme: "warm",
-      setTheme: (theme) => set({ theme }),
+    (set, get) => ({
+      themes: {},
+
+      getTheme: (userId) => get().themes[userId] ?? "warm",
+
+      setTheme: (userId, theme) =>
+        set((state) => ({
+          themes: { ...state.themes, [userId]: theme },
+        })),
     }),
     { name: "theme-storage" },
   ),

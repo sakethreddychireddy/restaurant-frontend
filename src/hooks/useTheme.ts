@@ -1,9 +1,13 @@
 import { useEffect } from "react";
 import { useThemeStore } from "@/store/themeStore";
+import { useAuthStore } from "@/store/authStore";
 import { THEME_VARIABLES } from "@/lib/themes";
 
 export const useTheme = () => {
-  const { theme, setTheme } = useThemeStore();
+  const { user } = useAuthStore();
+  const { getTheme, setTheme } = useThemeStore();
+  const userId = user?.id ?? "guest";
+  const theme = getTheme(userId);
 
   useEffect(() => {
     const vars = THEME_VARIABLES[theme];
@@ -14,5 +18,8 @@ export const useTheme = () => {
     root.setAttribute("data-theme", theme);
   }, [theme]);
 
-  return { theme, setTheme };
+  return {
+    theme,
+    setTheme: (t: typeof theme) => setTheme(userId, t),
+  };
 };

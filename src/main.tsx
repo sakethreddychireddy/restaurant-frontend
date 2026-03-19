@@ -15,8 +15,9 @@ const queryClient = new QueryClient({
   },
 });
 // Apply theme on app load
-const theme = useThemeStore.getState().theme;
-Object.entries(THEME_VARIABLES[theme]).forEach(([key, value]) => {
+const savedThemes = useThemeStore.getState().themes;
+const guestTheme = savedThemes["guest"] ?? "warm";
+Object.entries(THEME_VARIABLES[guestTheme]).forEach(([key, value]) => {
   document.documentElement.style.setProperty(key, value);
 });
 
