@@ -123,18 +123,18 @@ export const App = () => (
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
     </Suspense>
   </Layout>
 );
