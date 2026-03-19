@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useAuthStore } from "@/store/authStore";
-import { type Theme } from "@/store/themeStore";
 import { useTheme } from "@/hooks/useTheme";
 import {
   useProfile,
@@ -15,6 +14,7 @@ import {
 import { useAllOrders } from "@/hooks/useOrders";
 import { formatCurrency } from "@/utils/format";
 import type { AddressRequest, AddressResponse, ProfileResponse } from "@/types";
+import type { Theme } from "@/store/themeStore";
 
 const LABELS = ["Home", "Work", "Other"];
 
@@ -23,6 +23,17 @@ const THEMES: { id: Theme; label: string; emoji: string; desc: string }[] = [
   { id: "dark", label: "Dark", emoji: "🌙", desc: "Elegant dark mode" },
   { id: "fresh", label: "Fresh", emoji: "🌿", desc: "Clean green & white" },
 ];
+
+// ── Parse stored address ───────────────────────────────────────
+const parseAddress = (fullAddress: string) => {
+  const parts = fullAddress.split("|").map((p) => p.trim());
+  return {
+    line1: parts[0] ?? "",
+    city: parts[1] ?? "",
+    state: parts[2] ?? "",
+    zipcode: parts[3] ?? "",
+  };
+};
 
 // ── Address Form ───────────────────────────────────────────────
 const AddressForm = ({
@@ -36,9 +47,27 @@ const AddressForm = ({
   onCancel: () => void;
   isPending: boolean;
 }) => {
+  const parsed = initial ? parseAddress(initial.fullAddress) : null;
+
   const [label, setLabel] = useState(initial?.label ?? "Home");
-  const [fullAddress, setAddress] = useState(initial?.fullAddress ?? "");
-  const [isDefault, setIsDefault] = useState(initial?.isDefault ?? false);
+  const [line1, setLine1] = useState(parsed?.line1 ?? "");
+  const [city, setCity] = useState(parsed?.city ?? "");
+  const [state, setState] = useState(parsed?.state ?? "");
+  const [zipcode, setZipcode] = useState(parsed?.zipcode ?? "");
+  const [isDefault, setDefault] = useState(initial?.isDefault ?? false);
+
+  const fullAddress = [line1, city, state, zipcode].filter(Boolean).join(" | ");
+
+  const isValid = line1.trim() && city.trim() && state.trim() && zipcode.trim();
+
+  const inputStyle = {
+    background: "var(--color-bg-card)",
+    border: "1px solid var(--color-border)",
+    color: "var(--color-text)",
+  };
+
+  const inputClass =
+    "w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all";
 
   return (
     <div
@@ -48,6 +77,7 @@ const AddressForm = ({
         borderColor: "var(--color-border)",
       }}
     >
+      {/* Label */}
       <div className="flex gap-2">
         {LABELS.map((l) => (
           <button
@@ -66,25 +96,82 @@ const AddressForm = ({
           </button>
         ))}
       </div>
-      <textarea
-        value={fullAddress}
-        onChange={(e) => setAddress(e.target.value)}
-        placeholder="Enter full address..."
-        rows={3}
-        className="w-full px-4 py-3 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 transition-all"
-        style={{
-          background: "var(--color-bg-card)",
-          borderColor: "var(--color-border)",
-          color: "var(--color-text)",
-          border: "1px solid var(--color-border)",
-        }}
-      />
+
+      {/* Address Line 1 */}
+      <div>
+        <label
+          className="block text-xs font-600 mb-1"
+          style={{ color: "var(--color-text-muted)" }}
+        >
+          Address Line 1 *
+        </label>
+        <input
+          value={line1}
+          onChange={(e) => setLine1(e.target.value)}
+          placeholder="123 Main Street, Apt 4B"
+          className={inputClass}
+          style={inputStyle}
+        />
+      </div>
+
+      {/* City + State */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label
+            className="block text-xs font-600 mb-1"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            City *
+          </label>
+          <input
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="New York"
+            className={inputClass}
+            style={inputStyle}
+          />
+        </div>
+        <div>
+          <label
+            className="block text-xs font-600 mb-1"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            State *
+          </label>
+          <input
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            placeholder="NY"
+            className={inputClass}
+            style={inputStyle}
+          />
+        </div>
+      </div>
+
+      {/* Zipcode */}
+      <div>
+        <label
+          className="block text-xs font-600 mb-1"
+          style={{ color: "var(--color-text-muted)" }}
+        >
+          Zipcode *
+        </label>
+        <input
+          value={zipcode}
+          onChange={(e) => setZipcode(e.target.value)}
+          placeholder="10001"
+          className={inputClass}
+          style={inputStyle}
+        />
+      </div>
+
+      {/* Default */}
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
           id="isDefault"
           checked={isDefault}
-          onChange={(e) => setIsDefault(e.target.checked)}
+          onChange={(e) => setDefault(e.target.checked)}
           className="w-4 h-4"
         />
         <label
@@ -95,6 +182,7 @@ const AddressForm = ({
           Set as default address
         </label>
       </div>
+
       <div className="flex gap-2">
         <Button
           type="button"
@@ -108,7 +196,7 @@ const AddressForm = ({
           type="button"
           className="flex-1"
           loading={isPending}
-          disabled={!fullAddress.trim()}
+          disabled={!isValid}
           onClick={() => onSave({ label, fullAddress, isDefault })}
         >
           Save Address
@@ -118,12 +206,11 @@ const AddressForm = ({
   );
 };
 
-// ── Profile Form — only renders when profile is loaded ─────────
+// ── Profile Form ───────────────────────────────────────────────
 const ProfileForm = ({ profile }: { profile: ProfileResponse }) => {
   const [name, setName] = useState(profile.name ?? "");
   const [phone, setPhone] = useState(profile.phone ?? "");
-  const { mutate: updateProfile, isPending: updatingProfile } =
-    useUpdateProfile();
+  const { mutate: updateProfile, isPending } = useUpdateProfile();
 
   return (
     <div className="space-y-4">
@@ -140,7 +227,7 @@ const ProfileForm = ({ profile }: { profile: ProfileResponse }) => {
         placeholder="+1 234 567 8900"
       />
       <Button
-        loading={updatingProfile}
+        loading={isPending}
         onClick={() => updateProfile({ name, phone })}
         className="w-full"
       >
@@ -153,28 +240,24 @@ const ProfileForm = ({ profile }: { profile: ProfileResponse }) => {
 // ── Profile skeleton ───────────────────────────────────────────
 const ProfileFormSkeleton = () => (
   <div className="space-y-4">
-    <div
-      className="h-12 rounded-xl animate-pulse"
-      style={{ background: "var(--color-surface)" }}
-    />
-    <div
-      className="h-12 rounded-xl animate-pulse"
-      style={{ background: "var(--color-surface)" }}
-    />
-    <div
-      className="h-12 rounded-xl animate-pulse"
-      style={{ background: "var(--color-surface)" }}
-    />
+    {[1, 2, 3].map((i) => (
+      <div
+        key={i}
+        className="h-12 rounded-xl animate-pulse"
+        style={{ background: "var(--color-surface)" }}
+      />
+    ))}
   </div>
 );
 
 // ── Main Profile Page ──────────────────────────────────────────
 export const ProfilePage = () => {
   const { user } = useAuthStore();
-  const { theme, setTheme } = useTheme();
-  const isAdmin = user?.role.toLocaleLowerCase() === "admin";
 
-  useTheme();
+  // ← use role strictly from Zustand (persisted JWT data)
+  const isAdmin = user?.role?.toLowerCase() === "admin";
+
+  const { theme, setTheme } = useTheme();
 
   const { data: profile } = useProfile();
   const { data: addresses = [] } = useAddresses();
@@ -188,7 +271,7 @@ export const ProfilePage = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editAddress, setEditAddress] = useState<AddressResponse | null>(null);
 
-  // ── Admin stats ────────────────────────────────────────────────
+  // Admin stats
   const todayOrders = allOrders.filter((o) => {
     const today = new Date().toDateString();
     return new Date(o.createdAt).toDateString() === today;
@@ -215,6 +298,82 @@ export const ProfilePage = () => {
               ? "Manage your admin details and preferences"
               : "Manage your details and preferences"}
           </p>
+        </div>
+
+        {/* ── Theme Selection — right after header ─────────────── */}
+        <div
+          className="rounded-3xl p-6 border shadow-sm animate-fade-up"
+          style={{
+            background: "var(--color-bg-card)",
+            borderColor: "var(--color-border)",
+          }}
+        >
+          <h2
+            className="font-display text-xl font-700 mb-1"
+            style={{ color: "var(--color-text)" }}
+          >
+            App Theme
+          </h2>
+          <p
+            className="text-sm mb-4"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            Your theme is saved independently per account
+          </p>
+          <div className="space-y-3">
+            {THEMES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTheme(t.id)}
+                className="w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all"
+                style={{
+                  background:
+                    theme === t.id
+                      ? "var(--color-surface)"
+                      : "var(--color-bg-card)",
+                  borderColor:
+                    theme === t.id
+                      ? "var(--color-primary)"
+                      : "var(--color-border)",
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{t.emoji}</span>
+                  <div className="text-left">
+                    <p
+                      className="font-700 text-sm"
+                      style={{ color: "var(--color-text)" }}
+                    >
+                      {t.label}
+                    </p>
+                    <p
+                      className="text-xs mt-0.5"
+                      style={{ color: "var(--color-text-muted)" }}
+                    >
+                      {t.desc}
+                    </p>
+                  </div>
+                </div>
+                {/* Toggle */}
+                <div
+                  className="w-12 h-6 rounded-full relative flex-shrink-0 transition-all duration-300"
+                  style={{
+                    background:
+                      theme === t.id
+                        ? "var(--color-primary)"
+                        : "var(--color-border)",
+                  }}
+                >
+                  <div
+                    className="absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
+                    style={{
+                      left: theme === t.id ? "calc(100% - 20px)" : "4px",
+                    }}
+                  />
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Admin Stats */}
@@ -274,26 +433,25 @@ export const ProfilePage = () => {
             Personal Information
           </h2>
 
-          {/* Avatar */}
           <div className="flex items-center gap-4 mb-6">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-display font-700 text-white flex-shrink-0"
               style={{ background: "var(--color-primary)" }}
             >
-              {(profile?.name ?? user?.name ?? "U")[0].toUpperCase()}
+              {(user?.name ?? "U")[0].toUpperCase()}
             </div>
             <div>
               <p
                 className="font-700 text-lg"
                 style={{ color: "var(--color-text)" }}
               >
-                {profile?.name ?? user?.name}
+                {user?.name}
               </p>
               <p
                 className="text-sm"
                 style={{ color: "var(--color-text-muted)" }}
               >
-                {profile?.email ?? user?.email}
+                {user?.email}
               </p>
               <div className="flex items-center gap-2 mt-1">
                 <span
@@ -320,7 +478,6 @@ export const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Profile form — shows skeleton until profile loads */}
           {profile ? (
             <ProfileForm profile={profile} />
           ) : (
@@ -391,161 +548,92 @@ export const ProfilePage = () => {
               </div>
             ) : (
               <div className="space-y-3">
-                {addresses.map((addr) => (
-                  <div key={addr.id}>
-                    {editAddress?.id === addr.id ? (
-                      <AddressForm
-                        initial={addr}
-                        onSave={(data) => {
-                          updateAddress(
-                            { id: addr.id, data },
-                            { onSuccess: () => setEditAddress(null) },
-                          );
-                        }}
-                        onCancel={() => setEditAddress(null)}
-                        isPending={updatingAddress}
-                      />
-                    ) : (
-                      <div
-                        className="flex items-start justify-between p-4 rounded-2xl border transition-all"
-                        style={{
-                          background: addr.isDefault
-                            ? "var(--color-surface)"
-                            : "var(--color-bg-card)",
-                          borderColor: addr.isDefault
-                            ? "var(--color-primary)"
-                            : "var(--color-border)",
-                        }}
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span
-                              className="text-xs font-700 px-2 py-0.5 rounded-full"
+                {addresses.map((addr) => {
+                  const parsed = parseAddress(addr.fullAddress);
+                  return (
+                    <div key={addr.id}>
+                      {editAddress?.id === addr.id ? (
+                        <AddressForm
+                          initial={addr}
+                          onSave={(data) => {
+                            updateAddress(
+                              { id: addr.id, data },
+                              { onSuccess: () => setEditAddress(null) },
+                            );
+                          }}
+                          onCancel={() => setEditAddress(null)}
+                          isPending={updatingAddress}
+                        />
+                      ) : (
+                        <div
+                          className="flex items-start justify-between p-4 rounded-2xl border transition-all"
+                          style={{
+                            background: addr.isDefault
+                              ? "var(--color-surface)"
+                              : "var(--color-bg-card)",
+                            borderColor: addr.isDefault
+                              ? "var(--color-primary)"
+                              : "var(--color-border)",
+                          }}
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span
+                                className="text-xs font-700 px-2 py-0.5 rounded-full"
+                                style={{
+                                  background: "var(--color-surface)",
+                                  color: "var(--color-primary)",
+                                }}
+                              >
+                                {addr.label}
+                              </span>
+                              {addr.isDefault && (
+                                <span className="text-xs font-700 text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            {/* Structured address display */}
+                            <div
+                              className="text-sm space-y-0.5"
+                              style={{ color: "var(--color-text)" }}
+                            >
+                              <p>{parsed.line1}</p>
+                              <p style={{ color: "var(--color-text-muted)" }}>
+                                {parsed.city}, {parsed.state} {parsed.zipcode}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 ml-3 flex-shrink-0">
+                            <button
+                              onClick={() => setEditAddress(addr)}
+                              className="text-xs px-3 py-1.5 rounded-xl font-semibold transition-all"
                               style={{
                                 background: "var(--color-surface)",
-                                color: "var(--color-primary)",
+                                color: "var(--color-text-muted)",
                               }}
                             >
-                              {addr.label}
-                            </span>
-                            {addr.isDefault && (
-                              <span className="text-xs font-700 text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                                Default
-                              </span>
-                            )}
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (window.confirm("Delete this address?"))
+                                  deleteAddress(addr.id);
+                              }}
+                              className="text-xs px-3 py-1.5 rounded-xl font-semibold bg-red-50 text-red-500"
+                            >
+                              Delete
+                            </button>
                           </div>
-                          <p
-                            className="text-sm"
-                            style={{ color: "var(--color-text)" }}
-                          >
-                            {addr.fullAddress}
-                          </p>
                         </div>
-                        <div className="flex gap-2 ml-3 flex-shrink-0">
-                          <button
-                            onClick={() => setEditAddress(addr)}
-                            className="text-xs px-3 py-1.5 rounded-xl font-semibold transition-all"
-                            style={{
-                              background: "var(--color-surface)",
-                              color: "var(--color-text-muted)",
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (window.confirm("Delete this address?"))
-                                deleteAddress(addr.id);
-                            }}
-                            className="text-xs px-3 py-1.5 rounded-xl font-semibold bg-red-50 text-red-500"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
         )}
-
-        {/* Theme Selection */}
-        <div
-          className="rounded-3xl p-6 border shadow-sm animate-fade-up"
-          style={{
-            background: "var(--color-bg-card)",
-            borderColor: "var(--color-border)",
-          }}
-        >
-          <h2
-            className="font-display text-xl font-700 mb-2"
-            style={{ color: "var(--color-text)" }}
-          >
-            App Theme
-          </h2>
-          <p
-            className="text-sm mb-5"
-            style={{ color: "var(--color-text-muted)" }}
-          >
-            Choose your preferred look — saved per account
-          </p>
-
-          <div className="space-y-3">
-            {THEMES.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTheme(t.id)}
-                className="w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all"
-                style={{
-                  background:
-                    theme === t.id
-                      ? "var(--color-surface)"
-                      : "var(--color-bg-card)",
-                  borderColor:
-                    theme === t.id
-                      ? "var(--color-primary)"
-                      : "var(--color-border)",
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{t.emoji}</span>
-                  <div className="text-left">
-                    <p
-                      className="font-700 text-sm"
-                      style={{ color: "var(--color-text)" }}
-                    >
-                      {t.label}
-                    </p>
-                    <p
-                      className="text-xs mt-0.5"
-                      style={{ color: "var(--color-text-muted)" }}
-                    >
-                      {t.desc}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="w-12 h-6 rounded-full transition-all relative flex-shrink-0"
-                  style={{
-                    background:
-                      theme === t.id
-                        ? "var(--color-primary)"
-                        : "var(--color-border)",
-                  }}
-                >
-                  <div
-                    className="absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
-                    style={{
-                      left: theme === t.id ? "calc(100% - 20px)" : "4px",
-                    }}
-                  />
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
