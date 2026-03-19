@@ -1,0 +1,78 @@
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <!-- Gold Gradient -->
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0%" stop-color="#C89B3C"></stop>
+      <stop offset="100%" stop-color="#F8E48C"></stop>
+    </linearGradient>
+
+    <!-- Red Gradient -->
+    <linearGradient id="redGrad" x1="0" x2="1">
+      <stop offset="0%" stop-color="#7A0000"></stop>
+      <stop offset="100%" stop-color="#B22222"></stop>
+    </linearGradient>
+
+    <style>
+      .gold { fill: url(#gold); }
+      .red { fill: url(#redGrad); }
+      .line { stroke: #8B0000; stroke-width: 2; fill: none; }
+      .skin { fill: #F2C29E; }
+    </style>
+  </defs>
+
+  <!-- Ornamental Arch -->
+  <path d="M60 220 Q250 40 440 220" stroke="url(#gold)" stroke-width="6" fill="none"></path>
+  <path d="M80 220 Q250 70 420 220" class="line"></path>
+
+  <!-- Top Lotus -->
+  <path class="gold" d="M250 50 
+    q20 30 0 40 
+    q-20 -10 0 -40z"></path>
+  <circle cx="250" cy="80" r="8" class="gold"></circle>
+
+  <!-- LEFT PEACOCK -->
+  <g transform="translate(120,260)">
+    <ellipse cx="0" cy="0" rx="30" ry="20" class="gold"></ellipse>
+    <path d="M-30 0 q-20 -40 20 -60 q40 20 10 60z" fill="#2aa198"></path>
+    <circle cx="10" cy="-50" r="6" fill="#000"></circle>
+  </g>
+
+  <!-- RIGHT PEACOCK -->
+  <g transform="translate(380,260) scale(-1,1)">
+    <ellipse cx="0" cy="0" rx="30" ry="20" class="gold"></ellipse>
+    <path d="M-30 0 q-20 -40 20 -60 q40 20 10 60z" fill="#2aa198"></path>
+    <circle cx="10" cy="-50" r="6" fill="#000"></circle>
+  </g>
+
+  <!-- WOMAN -->
+  <circle cx="250" cy="180" r="28" class="skin"></circle>
+
+  <!-- Veil -->
+  <path class="red" d="M210 170 
+    q40 -80 80 0 
+    v120 
+    q-40 30 -80 0 z"></path>
+
+  <!-- Plate -->
+  <ellipse cx="250" cy="290" rx="80" ry="18" class="gold"></ellipse>
+
+  <!-- Food Details -->
+  <circle cx="220" cy="290" r="5" fill="#fff"></circle>
+  <circle cx="250" cy="288" r="5" fill="#fff"></circle>
+  <circle cx="280" cy="290" r="5" fill="#fff"></circle>
+
+  <!-- Bottom Decoration -->
+  <path d="M150 360 q100 60 200 0" stroke="url(#gold)" stroke-width="4" fill="none"></path>
+  <circle cx="250" cy="380" r="10" class="gold"></circle>
+
+  <!-- Side Floral -->
+  <path class="gold" d="M160 320 q30 -30 60 0 q-30 30 -60 0z"></path>
+  <path class="gold" d="M340 320 q-30 -30 -60 0 q30 30 60 0z"></path>
+
+  <!-- BRAND TEXT -->
+  <text x="250" y="460" text-anchor="middle" font-size="64" font-family="Georgia, serif" fill="#8B0000" letter-spacing="4">
+    MITHILA
+  </text>
+
+</svg>
