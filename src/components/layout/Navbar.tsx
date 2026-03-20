@@ -207,6 +207,26 @@ export const Navbar = () => {
                       </div>
                     </div>
 
+                    {/* Profile link */}
+                    {user?.role === "Customer" && (
+                      <Link
+                        to="/profile"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-body font-600 transition-colors"
+                        style={{ color: "var(--color-text)" }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background =
+                            "var(--color-surface)")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "transparent")
+                        }
+                      >
+                        <span className="text-base">👤</span>
+                        My Profile
+                      </Link>
+                    )}
+
                     {/* Admin profile link */}
                     {user?.role === "Admin" && (
                       <Link
