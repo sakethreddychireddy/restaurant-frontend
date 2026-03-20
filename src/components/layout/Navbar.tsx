@@ -18,7 +18,7 @@ export const Navbar = () => {
   const totalItems = useCartStore((s) => s.totalItems());
   const logout = useLogout();
   const { pathname } = useLocation();
-  const { theme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -143,43 +143,89 @@ export const Navbar = () => {
 
                 {/* Dropdown menu */}
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl shadow-warm-lg overflow-hidden animate-fade-up z-50">
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl shadow-warm-lg overflow-hidden animate-fade-up z-50">
                     {/* User info */}
                     <div className="px-4 py-3 border-b border-[var(--color-border)]">
-                      <p className="text-sm font-700 text-charcoal truncate">
-                        {user?.name}
-                      </p>
-                      <p className="text-xs text-warm-400 truncate mt-0.5">
-                        {user?.email ?? ""}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-display font-700 flex-shrink-0"
+                          style={{ background: "var(--color-primary)" }}
+                        >
+                          {user?.name?.[0]?.toUpperCase() ?? "U"}
+                        </div>
+                        <div className="min-w-0">
+                          <p
+                            className="text-sm font-700 truncate"
+                            style={{ color: "var(--color-text)" }}
+                          >
+                            {user?.name}
+                          </p>
+                          <p
+                            className="text-xs truncate mt-0.5"
+                            style={{ color: "var(--color-text-muted)" }}
+                          >
+                            {user?.email ?? ""}
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Profile link */}
-                    {user?.role === "Customer" && (
+                    {/* Mini theme switcher */}
+                    <div className="px-4 py-3 border-b border-[var(--color-border)]">
+                      <p
+                        className="text-xs font-700 mb-2"
+                        style={{ color: "var(--color-text-muted)" }}
+                      >
+                        THEME
+                      </p>
+                      <div className="flex gap-2">
+                        {[
+                          { id: "warm" as const, emoji: "🍂", label: "Warm" },
+                          { id: "dark" as const, emoji: "🌙", label: "Dark" },
+                          { id: "fresh" as const, emoji: "🌿", label: "Fresh" },
+                        ].map((t) => (
+                          <button
+                            key={t.id}
+                            onClick={() => setTheme(t.id)}
+                            className="flex-1 flex flex-col items-center gap-1 py-2 rounded-xl transition-all text-xs font-600"
+                            style={{
+                              background:
+                                theme === t.id
+                                  ? "var(--color-surface)"
+                                  : "transparent",
+                              border: `1px solid ${theme === t.id ? "var(--color-primary)" : "var(--color-border)"}`,
+                              color:
+                                theme === t.id
+                                  ? "var(--color-primary)"
+                                  : "var(--color-text-muted)",
+                            }}
+                          >
+                            <span className="text-base">{t.emoji}</span>
+                            <span>{t.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Admin profile link */}
+                    {user?.role === "Admin" && (
                       <Link
                         to="/profile"
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-body font-600 text-[var(--color-text)] hover:bg-[var(--color-surface)] transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-body font-600 transition-colors"
+                        style={{ color: "var(--color-text)" }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background =
+                            "var(--color-surface)")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "transparent")
+                        }
                       >
-                        <span className="text-base">👤</span>
-                        My Profile
+                        <span className="text-base">👑</span>
+                        Admin Profile
                       </Link>
                     )}
-
-                    {/* Theme indicator */}
-                    <Link
-                      to="/profile"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm font-body font-600 text-[var(--color-text)] hover:bg-[var(--color-surface)] transition-colors border-t border-[var(--color-border)]"
-                    >
-                      <span className="text-base">{THEME_EMOJIS[theme]}</span>
-                      <span>
-                        Theme
-                        <span className="ml-1.5 text-xs text-[var(--color-primary)] font-700 capitalize">
-                          {theme}
-                        </span>
-                      </span>
-                    </Link>
 
                     {/* Logout */}
                     <button
@@ -187,7 +233,13 @@ export const Navbar = () => {
                         setDropdownOpen(false);
                         logout();
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-body font-600 text-red-500 hover:bg-red-50 transition-colors border-t border-[var(--color-border)]"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-body font-600 text-red-500 transition-colors border-t border-[var(--color-border)]"
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = "#fef2f2")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "transparent")
+                      }
                     >
                       <svg
                         className="w-4 h-4"
