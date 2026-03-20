@@ -122,14 +122,24 @@ export interface UpdateProfileRequest {
 export interface AddressResponse {
   id: string;
   label: string;
-  fullAddress: string;
+  addressLine1: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
   isDefault: boolean;
   createdAt: string;
+  fullAddress: string;
+  shortAddress: string;
 }
 
 export interface AddressRequest {
   label: string;
-  fullAddress: string;
+  addressLine1: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
   isDefault: boolean;
 }
 // ── OTP ────────────────────────────────────────────────────────
