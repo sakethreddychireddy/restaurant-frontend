@@ -53,7 +53,7 @@ export const OAuthCallbackPage = () => {
           role: data.role?.toLowerCase() === "admin" ? "Admin" : "Customer",
         };
 
-        setAuth(user, data.token);
+        setAuth(user, data.token, data.refreshToken);
         toast.success(`Welcome, ${data.name}! 👋`);
         navigate(user.role === "Admin" ? "/admin" : "/menu", { replace: true });
       } catch {
