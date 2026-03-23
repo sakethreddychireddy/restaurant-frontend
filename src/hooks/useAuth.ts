@@ -37,7 +37,7 @@ export const useLogin = () => {
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: (data) => {
       const user = toUser(data);
-      setAuth(user, data.token);
+      setAuth(user, data.token, data.refreshToken);
       toast.success(`Welcome back, ${data.name}!`);
       navigateByRole(user.role, navigate);
     },
@@ -52,22 +52,12 @@ export const useRegister = () => {
     mutationFn: (data: RegisterRequest) => authService.register(data),
     onSuccess: (data) => {
       const user = toUser(data);
-      setAuth(user, data.token);
+      setAuth(user, data.token, data.refreshToken);
       toast.success("Welcome to Mithila!");
       navigate("/menu");
     },
     onError: (err: string) => toast.error(err || "Registration failed"),
   });
-};
-
-export const useLogout = () => {
-  const { logout } = useAuthStore();
-  const navigate = useNavigate();
-  return () => {
-    logout();
-    navigate("/login");
-    toast.success("Logged out successfully");
-  };
 };
 
 // ── OTP hooks ──────────────────────────────────────────────────
@@ -77,6 +67,7 @@ export const useSendOtp = () =>
     onError: (err: string) => toast.error(err || "Failed to send OTP"),
   });
 
+// Update useVerifyOtp to store refreshToken
 export const useVerifyOtp = () => {
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
@@ -84,10 +75,30 @@ export const useVerifyOtp = () => {
     mutationFn: (data: VerifyOtpRequest) => authService.verifyOtp(data),
     onSuccess: (data) => {
       const user = toUser(data);
-      setAuth(user, data.token);
+      setAuth(user, data.token, data.refreshToken);
       toast.success(`Welcome, ${data.name}!`);
       navigateByRole(user.role, navigate);
     },
     onError: (err: string) => toast.error(err || "Invalid or expired OTP"),
   });
+};
+
+// Update useLogout to call backend
+export const useLogout = () => {
+  const { logout, refreshToken } = useAuthStore();
+  const navigate = useNavigate();
+
+  return async () => {
+    try {
+      if (refreshToken) {
+        await authService.logout(refreshToken);
+      }
+    } catch {
+      // ignore errors — logout anyway
+    } finally {
+      logout();
+      navigate("/login");
+      toast.success("Logged out successfully");
+    }
+  };
 };

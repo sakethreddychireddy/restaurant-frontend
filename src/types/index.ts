@@ -5,6 +5,7 @@ export interface User {
   role: "Customer" | "Admin";
 }
 export interface AuthResponse {
+  refreshToken: string;
   token: string;
   userId: string;
   name: string;

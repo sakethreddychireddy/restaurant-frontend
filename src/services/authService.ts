@@ -29,4 +29,13 @@ export const authService = {
     const res = await authApi.post("/api/auth/verify-otp", data);
     return res.data.data;
   },
+  // Add these two methods
+  logout: async (refreshToken: string): Promise<void> => {
+    await authApi.post("/api/auth/logout", { refreshToken });
+  },
+
+  refresh: async (refreshToken: string): Promise<AuthResponse> => {
+    const res = await authApi.post("/api/auth/refresh", { refreshToken });
+    return res.data.data;
+  },
 };
